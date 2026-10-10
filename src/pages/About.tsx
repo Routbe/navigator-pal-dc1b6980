@@ -16,11 +16,10 @@ import { FleurDeLisIcon } from "@/components/profile/EarlyBelieverBadge";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BUNNY_PATH } from "@/lib/site";
 import { useI18n } from "@/lib/i18n";
-import { getRouteApi } from "@tanstack/react-router";
 import { CommunityMetrics, ReviewsStrip } from "@/components/community/Community";
+import type { CommunityReview, CommunityStats } from "@/lib/community.functions";
 import { Code2, Youtube, AtSign, Link2 } from "lucide-react";
 
-const aboutRoute = getRouteApi("/about");
 
 /**
  * Publieke marketingpagina van ROUT.
@@ -337,9 +336,8 @@ function HandleClaim() {
 
 const CARD = "rounded-3xl border border-border/80 bg-card/90 p-6 shadow-sm sm:p-8";
 
-export default function About() {
+export default function About({ stats = null, reviews = [] }: { stats?: CommunityStats | null; reviews?: CommunityReview[] }) {
   const { t } = useI18n();
-  const { stats, reviews } = aboutRoute.useLoaderData();
   const pillars = [
     { icon: Youtube, label: t("about.pillars.youtube") },
     { icon: Code2, label: t("about.pillars.code") },

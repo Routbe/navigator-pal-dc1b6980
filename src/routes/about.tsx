@@ -30,5 +30,10 @@ export const Route = createFileRoute("/about")({
       logo: "https://rout.be/logo.svg",
     }),
   }),
-  component: Page,
+  component: AboutRoute,
 });
+
+function AboutRoute() {
+  const { stats, reviews } = Route.useLoaderData();
+  return <Page stats={stats} reviews={reviews} />;
+}
