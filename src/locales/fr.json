@@ -1214,5 +1214,9 @@
   "about.manifesto.open": "Open source sous AGPLv3 : chacun peut lire, auditer et héberger le code.",
   "about.manifesto.privacy": "La vie privée d'abord : pas de traqueurs, pas de pub, serveurs européens.",
   "about.manifesto.design": "Design minimaliste et biophile : le calme plutôt que le bruit.",
-  "about.finalCta.explore": "Voir de vrais profils"
+  "about.finalCta.explore": "Voir de vrais profils",
+  "invite.title": "{{name}} vous invite sur ROUT",
+  "invite.body": "Créez votre profil et obtenez {{percent}} % de réduction sur l'offre de votre choix.",
+  "invite.cta": "Réservez votre identifiant",
+  "invite.close": "Fermer"
 }

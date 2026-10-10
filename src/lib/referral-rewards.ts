@@ -63,3 +63,13 @@ export function nextMilestone(
   }
   return null;
 }
+
+/** Discount (percent) for a NEW member who signed up through someone's invite link. */
+export const INVITEE_PERCENT_OFF = 10;
+
+/** Base price after the invitee discount; only applies when the member was actually referred. */
+export function inviteePriceCents(baseCents: number, referred: boolean): number {
+  const base = Math.max(0, Math.round(baseCents));
+  if (!referred) return base;
+  return Math.max(0, base - Math.round((base * INVITEE_PERCENT_OFF) / 100));
+}
