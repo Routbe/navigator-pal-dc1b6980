@@ -1214,5 +1214,9 @@
   "about.manifesto.open": "Open source onder AGPLv3: iedereen kan de code lezen, controleren en zelf hosten.",
   "about.manifesto.privacy": "Privacy eerst: geen trackers, geen advertenties, Europese servers.",
   "about.manifesto.design": "Minimalistisch, biofiel ontwerp: rust in plaats van ruis.",
-  "about.finalCta.explore": "Bekijk echte profielen"
+  "about.finalCta.explore": "Bekijk echte profielen",
+  "invite.title": "{{name}} nodigt je uit op ROUT",
+  "invite.body": "Maak je eigen profiel en krijg {{percent}}% korting op elk plan dat je kiest.",
+  "invite.cta": "Claim je handle",
+  "invite.close": "Sluiten"
 }

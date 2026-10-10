@@ -26,7 +26,13 @@ export async function bestPriceCents(
     const referralPrice =
       Math.max(0, base - Math.round((base * reward.percentOff) / 100)) +
       methodFeeCents(method, pricing);
-    return Math.min(promoPrice, referralPrice);
+    // New members who came in through an invite get 10% off (inviter rewards above still apply to inviters).
+    const { inviteePriceCents } = await import("./referral-rewards");
+    const { sql } = await import("./neon");
+    const rows = (await sql`select referred_by from public.profiles where id = ${userId} limit 1`) as { referred_by: string | null }[];
+    const referred = !!rows[0]?.referred_by;
+    const inviteePrice = inviteePriceCents(base, referred) + methodFeeCents(method, pricing);
+    return Math.min(promoPrice, referralPrice, inviteePrice);
   } catch {
     return promoPrice;
   }

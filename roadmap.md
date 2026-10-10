@@ -1,9 +1,13 @@
 # Roadmap
-- [x] VIP-handles crash
-- [x] Batch approval + grouped pending verifications
-- [x] Header "Ontdek" translated, missing-key audit script, EN→NL fallback
-- [x] Explore redesign + one-tap profile open
-- [x] About redesign (comparison, pillars, live numbers, reviews, manifesto)
-- [ ] Translate remaining fixed Dutch labels in dashboard/Profile Hub (DesignTabEditor, ProfileThemePicker, TipPagePanel, BusinessInfluencerRequests, GalleryImageDialog, ProfileQrCard, SecureShieldWalletCard, Onboarding)
-- [ ] Admin screen to approve community reviews
-- [ ] Run db/65 migration (needs Neon connected)
+- [x] VIP-handles crash, batch approval, header translation, Explore + About redesign
+- [x] Invite links: invitation card on profile + 10% for new member (tested)
+- [x] AT Protocol engine shared by Bluesky + Wsocial (wsocial.eu), linked-accounts table (db/66)
+- [ ] Wire Bluesky/Wsocial verify button to the new engine (needs Neon to test)
+- [ ] Google YouTube extra-permission link + auto badge (needs Google keys + consent review)
+- [ ] GitHub/GitLab auto badge on link (needs Neon to test)
+- [ ] X / Meta login flows (blocked: no developer apps/keys yet)
+- [ ] Mobile/desktop polish of Profile Hub + dashboard (needs a signed-in session → needs Neon)
+- [ ] Admin portal overhaul (needs Neon to load real data)
+- [ ] Explore: category/platform filters, extra rows, infinite scroll
+- [ ] Translate remaining fixed Dutch dashboard labels; admin screen to approve reviews
+- [ ] Run db/65 + db/66 migrations (needs Neon)
