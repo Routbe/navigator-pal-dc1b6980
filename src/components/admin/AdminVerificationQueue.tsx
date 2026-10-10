@@ -237,6 +237,11 @@ export function AdminVerificationQueue({
                       <span className="whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase">
                         {TIER_BADGE[row.tier] ?? row.tier}
                       </span>
+                      {(row.duplicates ?? 1) > 1 && (
+                        <span className="ml-1 whitespace-nowrap rounded-full bg-primary/15 px-2 py-0.5 text-[10px] text-primary" title="Duplicates close automatically on approve">
+                          {row.duplicates}× requests
+                        </span>
+                      )}
                     </td>
                     <td className="py-2 pr-3 font-mono">{row.reference}</td>
                     <td className="py-2 pr-3 whitespace-nowrap">

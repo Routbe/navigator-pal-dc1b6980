@@ -55,6 +55,8 @@ export type PendingVerification = {
   donationCents: number;
   status: string;
   createdAt: string;
+  /** How many open requests (same user + category) this entry stands for. */
+  duplicates?: number;
 };
 
 export type AdminUserRow = {
