@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { ProfileLookupError, ProfileMissing, ProfileView } from "@/components/profile/ProfileView";
+import { InviteBanner } from "@/components/profile/InviteBanner";
 import { ProfileSuspended } from "@/components/profile/ProfileSuspended";
 import { ProfileFrozen } from "@/components/profile/ProfileFrozen";
 import { ProfilePrivate } from "@/components/profile/ProfilePrivate";
@@ -58,7 +59,12 @@ function FreeProfile() {
     return <ProfilePrivate username={handle} />;
   }
 
-  return <ProfileView profile={profile} free />;
+  return (
+    <>
+      <InviteBanner handle={profile.username ?? ""} displayName={profile.display_name} />
+      <ProfileView profile={profile} free />
+    </>
+  );
 }
 
 export const Route = createFileRoute("/u/$username")({
