@@ -116,6 +116,18 @@ export async function approvePayment(paymentId: string, adminId: string) {
      where id = ${payment["id"]}
   `;
 
+  // Close duplicate open requests from the same user for the same category.
+  try {
+    await sql`
+      update public.verification_payments
+         set status = 'cancelled', provider_ref = ${`duplicate_of:${payment["id"]}`}, updated_at = now()
+       where user_id = ${payment["user_id"]} and tier = ${payment["tier"]}
+         and id <> ${payment["id"]} and status in ('pending', 'incomplete')
+    `;
+  } catch (err) {
+    console.warn("[admin] could not close duplicate verification requests", err);
+  }
+
   await sql`
     update public.profiles
        set tier = ${payment["tier"]}, verified = true, status = 'active', verified_at = now()
