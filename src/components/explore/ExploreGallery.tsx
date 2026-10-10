@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { BadgeCheck, ExternalLink } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { ShowcaseCard } from "@/lib/showcase.functions";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +11,6 @@ const SPAN = ["sm:col-span-2 sm:row-span-2", "", "", "sm:col-span-2", "", "sm:ro
 
 export function ExploreGallery({ cards, filters = false }: { cards: ShowcaseCard[]; filters?: boolean }) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState<ShowcaseCard | null>(null);
   const [query, setQuery] = useState("");
   const [onlyVerified, setOnlyVerified] = useState(false);
   const shown = useMemo(() => {
@@ -34,12 +32,6 @@ export function ExploreGallery({ cards, filters = false }: { cards: ShowcaseCard
       </div>
     );
   }
-
-  const onPick = (card: ShowcaseCard, e: React.MouseEvent) => {
-    if (window.matchMedia("(max-width: 639px)").matches) return; // mobile: follow the link
-    e.preventDefault();
-    setOpen(card);
-  };
 
   return (
     <>
@@ -79,12 +71,13 @@ export function ExploreGallery({ cards, filters = false }: { cards: ShowcaseCard
         {shown.map((c, i) => {
           const big = i === 0;
           return (
-            <a
+            <Link
               key={c.handle}
-              href={`/${c.handle}`}
-              onClick={(e) => onPick(c, e)}
+              to="/$username"
+              params={{ username: c.handle }}
+              preload="intent"
               className={cn(
-                "group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-foreground/40 hover:shadow-lg active:scale-[0.99] animate-in fade-in slide-in-from-bottom-2",
+                "group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card p-6 transition-all duration-300 [@media(hover:hover)]:hover:border-foreground/40 [@media(hover:hover)]:hover:shadow-lg animate-in fade-in slide-in-from-bottom-2",
                 SPAN[i % SPAN.length],
               )}
             >
@@ -109,27 +102,14 @@ export function ExploreGallery({ cards, filters = false }: { cards: ShowcaseCard
                   {c.tagline || c.bio}
                 </p>
               )}
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground opacity-0 transition-opacity group-hover:opacity-100">
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground opacity-70">
                 {t("explore.view")} <ExternalLink className="h-3 w-3" aria-hidden />
               </span>
-            </a>
+            </Link>
           );
         })}
       </div>
 
-      <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
-        <DialogContent className="h-[85vh] max-w-md overflow-hidden p-0">
-          <DialogTitle className="sr-only">{open ? `${t("explore.profile")} ${open.handle}` : t("explore.profile")}</DialogTitle>
-          {open && (
-            <div className="flex h-full flex-col">
-              <iframe title={`rout.be/${open.handle}`} src={`/${open.handle}`} className="w-full flex-1 border-0" />
-              <a href={`/${open.handle}`} className="flex min-h-12 items-center justify-center gap-2 border-t border-border text-sm font-medium text-foreground hover:bg-accent">
-                {t("explore.openFull")} <ExternalLink className="h-4 w-4" aria-hidden />
-              </a>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
