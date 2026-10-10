@@ -99,7 +99,8 @@ export async function fetchPendingVerifications(limit = 100): Promise<PendingVer
      order by vp.created_at desc
      limit ${limit}
   `) as Row[];
-  return rows.map(toPendingVerification);
+  const { groupOpenRequests } = await import("./verification-dedupe");
+  return groupOpenRequests(rows.map(toPendingVerification));
 }
 
 /** Flips a payment to paid, grants the badge and records a notification event. */
