@@ -225,6 +225,8 @@ type AuthorizeInput = z.infer<typeof authorizeSchema>;
 export type AuthorizePrompt = {
   ok: boolean;
   error?: string;
+  /** Standard OIDC error redirect back to the app (only when the redirect URI is trusted). */
+  redirectTo?: string;
   app?: {
     name: string;
     logoUrl: string | null;
@@ -270,9 +272,9 @@ async function checkRequest(data: AuthorizeInput) {
     hasPkce: data.codeChallenge.length > 0,
     pkceMethod: data.codeChallengeMethod ?? null,
   };
-  const fail = (code: string, error: string) => {
+  const fail = (code: string, error: string, back?: string) => {
     logOAuthEvent(data.clientId, "authorize", "error", code, detail);
-    return { error } as const;
+    return { error, ...(back ? { redirectTo: errorRedirect(data.redirectUri, data.state, back, error) } : {}) } as const;
   };
   const client = await getClientByClientId(data.clientId);
   if (!client || client.status !== "active") return fail("invalid_client", "Deze app is onbekend bij ROUT.");
@@ -281,17 +283,17 @@ async function checkRequest(data: AuthorizeInput) {
   }
   const hasPkce = data.codeChallenge.length > 0;
   if (hasPkce && (data.codeChallengeMethod !== "S256" || data.codeChallenge.length < 43)) {
-    return fail("invalid_pkce_method", "Deze app moet PKCE met S256 gebruiken.");
+    return fail("invalid_pkce_method", "Deze app moet PKCE met S256 gebruiken.", "invalid_request");
   }
   if (!hasPkce && (client.requirePkce || !client.hasSecret)) {
-    return fail("missing_code_challenge", "Deze app moet PKCE (S256) meesturen.");
+    return fail("missing_code_challenge", "Deze app moet PKCE (S256) meesturen.", "invalid_request");
   }
   const scopes = requested.filter(
     (s) => client.scopes.includes(s) && SUPPORTED_SCOPES.includes(s as never),
   );
   if (!scopes.includes("openid")) scopes.unshift("openid");
   const unknown = requested.find((s) => !scopes.includes(s));
-  if (unknown) return fail("invalid_scope", `Deze app vraagt een recht dat niet mag: ${unknown}.`);
+  if (unknown) return fail("invalid_scope", `Deze app vraagt een recht dat niet mag: ${unknown}.`, "invalid_scope");
   const stepUp = needsStepUp({
     flowPreference: client.flowPreference,
     prompt: data.prompt ?? null,
@@ -302,26 +304,21 @@ async function checkRequest(data: AuthorizeInput) {
   return { client, scopes, stepUp } as const;
 }
 
-function redirectWith(redirectUri: string, state: string | null | undefined, params: Record<string, string>) {
-  const target = new URL(redirectUri);
-  for (const [k, v] of Object.entries(params)) target.searchParams.set(k, v);
-  if (state) target.searchParams.set("state", state);
-  return target.toString();
-}
+import { redirectWith, errorRedirect } from "./authorize-redirect";
 
 export const describeAuthorizeRequest = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .inputValidator((data: unknown) => authorizeSchema.parse(data))
   .handler(async ({ data, context }): Promise<AuthorizePrompt> => {
     const checked = await checkRequest(data);
-    if ("error" in checked) return { ok: false, error: checked.error };
+    if ("error" in checked) {
+      return { ok: false, error: checked.error, ...("redirectTo" in checked ? { redirectTo: checked.redirectTo } : {}) };
+    }
     const { client, scopes, stepUp } = checked;
     const { hasConsent, userMayUseClient, isVerifiedApp } = await import("./provider.server");
     if (!(await userMayUseClient(client, { id: context.userId, email: context.user.email }))) {
-      return {
-        ok: false,
-        error: "Deze app is nog in testfase. Enkel uitgenodigde testgebruikers kunnen inloggen.",
-      };
+      const error = "Deze app is nog in testfase. Enkel uitgenodigde testgebruikers kunnen inloggen.";
+      return { ok: false, error, redirectTo: errorRedirect(data.redirectUri, data.state, "access_denied", error) };
     }
     return {
       ok: true,
