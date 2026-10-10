@@ -16,6 +16,11 @@ import { FleurDeLisIcon } from "@/components/profile/EarlyBelieverBadge";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { BUNNY_PATH } from "@/lib/site";
 import { useI18n } from "@/lib/i18n";
+import { getRouteApi } from "@tanstack/react-router";
+import { CommunityMetrics, ReviewsStrip } from "@/components/community/Community";
+import { Code2, Youtube, AtSign, Link2 } from "lucide-react";
+
+const aboutRoute = getRouteApi("/about");
 
 /**
  * Publieke marketingpagina van ROUT.
@@ -334,6 +339,13 @@ const CARD = "rounded-3xl border border-border/80 bg-card/90 p-6 shadow-sm sm:p-
 
 export default function About() {
   const { t } = useI18n();
+  const { stats, reviews } = aboutRoute.useLoaderData();
+  const pillars = [
+    { icon: Youtube, label: t("about.pillars.youtube") },
+    { icon: Code2, label: t("about.pillars.code") },
+    { icon: AtSign, label: t("about.pillars.atproto") },
+    { icon: Link2, label: t("about.pillars.domain") },
+  ];
   const features = useMemo(
     () =>
       FEATURE_KEYS.map((feature) => ({
@@ -375,6 +387,48 @@ export default function About() {
               </div>
             </article>
           ))}
+        </section>
+
+        <section className="mt-24 sm:mt-32">
+          <h2 className="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">{t("about.comparisonTitle")}</h2>
+          <ComparisonMatrix />
+        </section>
+
+        <section className="mt-24">
+          <h2 className="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">{t("about.pillars.title")}</h2>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            {pillars.map((p) => (
+              <div key={p.label} className="flex items-center gap-4 rounded-3xl border border-border bg-card p-6">
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border bg-background">
+                  <p.icon className="h-5 w-5 text-foreground" aria-hidden />
+                </span>
+                <p className="font-medium text-foreground">{p.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {stats && (
+          <section className="mt-24">
+            <h2 className="mb-8 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">{t("about.metrics.title")}</h2>
+            <CommunityMetrics stats={stats} />
+          </section>
+        )}
+
+        <div className="mt-24">
+          <ReviewsStrip reviews={reviews} />
+        </div>
+
+        <section className="mt-24 rounded-[2rem] border border-border bg-card px-6 py-12 sm:px-12 sm:py-16">
+          <h2 className="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">{t("about.manifesto.title")}</h2>
+          <ol className="mt-8 space-y-6">
+            {(["open", "privacy", "design"] as const).map((k, i) => (
+              <li key={k} className="grid gap-2 sm:grid-cols-[80px_1fr]">
+                <span className="font-mono text-sm text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
+                <p className="font-serif text-xl leading-relaxed text-foreground sm:text-2xl">{t(`about.manifesto.${k}`)}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
         {/* Merktekens: exact dezelfde iconen als op een publiek profiel. */}
@@ -464,7 +518,7 @@ export default function About() {
                 />
               </Link>
               <Link to="/explore" className="inline-flex items-center gap-1.5 text-sm font-medium underline-offset-4 opacity-80 hover:underline hover:opacity-100">
-                Bekijk echte profielen <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                {t("about.finalCta.explore")} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
               <p className="text-xs opacity-60">{t("about.handleClaim.hint")}</p>
             </div>

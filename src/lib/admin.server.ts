@@ -55,6 +55,8 @@ export type PendingVerification = {
   donationCents: number;
   status: string;
   createdAt: string;
+  /** How many open requests (same user + category) this entry stands for. */
+  duplicates?: number;
 };
 
 export type AdminUserRow = {
@@ -99,7 +101,8 @@ export async function fetchPendingVerifications(limit = 100): Promise<PendingVer
      order by vp.created_at desc
      limit ${limit}
   `) as Row[];
-  return rows.map(toPendingVerification);
+  const { groupOpenRequests } = await import("./verification-dedupe");
+  return groupOpenRequests(rows.map(toPendingVerification));
 }
 
 /** Flips a payment to paid, grants the badge and records a notification event. */
@@ -115,6 +118,18 @@ export async function approvePayment(paymentId: string, adminId: string) {
        set status = 'paid', provider_ref = ${`manual:${adminId}`}, updated_at = now()
      where id = ${payment["id"]}
   `;
+
+  // Close duplicate open requests from the same user for the same category.
+  try {
+    await sql`
+      update public.verification_payments
+         set status = 'cancelled', provider_ref = ${`duplicate_of:${payment["id"]}`}, updated_at = now()
+       where user_id = ${payment["user_id"]} and tier = ${payment["tier"]}
+         and id <> ${payment["id"]} and status in ('pending', 'incomplete')
+    `;
+  } catch (err) {
+    console.warn("[admin] could not close duplicate verification requests", err);
+  }
 
   await sql`
     update public.profiles

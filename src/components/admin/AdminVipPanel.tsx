@@ -87,8 +87,15 @@ const AUDIT_ACTIONS = [
   { value: "handle_changed", label: "Handle changed" },
 ];
 
-const dateOnly = (iso: string) => (iso ? iso.slice(0, 10) : "—");
-const stamp = (iso: string | null) => (iso ? iso.replace("T", " ").slice(0, 16) : "—");
+/** Neon may return Date objects, numbers or null; never assume a string. */
+const asIso = (v: unknown): string => {
+  if (v instanceof Date) return Number.isNaN(v.getTime()) ? "" : v.toISOString();
+  if (typeof v === "string") return v;
+  if (typeof v === "number") return new Date(v).toISOString();
+  return "";
+};
+const dateOnly = (v: unknown) => asIso(v).slice(0, 10) || "—";
+const stamp = (v: unknown) => asIso(v).replace("T", " ").slice(0, 16) || "—";
 
 const SYNC_STYLES: Record<SyncStatus, { label: string; className: string }> = {
   synced: {
