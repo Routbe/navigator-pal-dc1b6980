@@ -835,3 +835,18 @@ select:focus-visible {
     animation: none;
   }
 }
+
+/* Explore: endless avatar strip, left → right. */
+@keyframes rout-marquee-ltr {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+.marquee-track { animation: rout-marquee-ltr 40s linear infinite; }
+.marquee-mask:hover .marquee-track { animation-play-state: paused; }
+.marquee-mask {
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+  .marquee-mask { overflow-x: auto; }
+}
