@@ -35,3 +35,5 @@
 - Studio autosaves private drafts and publishes with revision checks; public reads never use drafts. Why: incomplete edits stay private.
 - Layered design lives as one JSON string in `display_prefs.designLayers`, normalized by `normalizeDesignLayers` server-side and on render. Why: display_prefs is flat; client input stays untrusted.
 - Rate limits are counted in Neon (`rate_limits`, db/64) via `hitRateLimit`, failing open on database errors. Why: limits must hold across server instances without locking everyone out.
+- Public community numbers come only from live database counts and reviews only from `community_reviews` rows with status `approved` (db/65); sections hide when there is no data. Why: no invented social proof.
+- Approving a verification closes the user's other open requests for the same tier (`cancelled`, `provider_ref = duplicate_of:<id>`); grouping logic lives in `src/lib/verification-dedupe.ts`. Why: one badge, no duplicate admin work.
